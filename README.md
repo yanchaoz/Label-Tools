@@ -22,7 +22,7 @@ positive and negative training examples. No cloud account, Node build step, or m
 - Lossless raw TIFF + uint16 instance TIFF + partial-target ignore mask exports.
 - PNG/JPEG and single-image TIFF import, raw/preview checksums, and synthetic demo data.
 - Optional center-point workspace: foreground add/erase, seeded instance splitting, live previews,
-  revisioned annotations, and foreground + boundary training targets.
+  explicit point-selected merging, revisioned annotations, and foreground + boundary training targets.
 
 ## Quick Start
 
@@ -116,6 +116,11 @@ unknown. Add one center per object **inside a merged region** to split it; exist
 instance IDs are retained. Points outside foreground are flagged, not silently moved. Add or erase
 foreground explicitly when the coarse mask is wrong. Previews recompute locally after edits;
 training TIFFs are generated only when you export.
+
+To join over-segmented pieces, select the merge tool, click inside each intended instance, and
+confirm with the check icon. Only the selected IDs are merged; no background pixels are painted.
+Undo/redo works, and saved merge groups can be removed individually. Background clicks and a
+selection confined to one instance cannot be confirmed. Merge groups are separate from split centers.
 
 Exports contain raw pixels, uint32 instances, foreground, boundary, interior, and ignore masks.
 **Centers do not make an unreviewed foreground mask ground truth.** Review the full mask and all

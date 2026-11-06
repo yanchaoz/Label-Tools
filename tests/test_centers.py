@@ -152,6 +152,24 @@ def test_invalid_points_block_export(centers, tmp_path):
         centers.export_pair("IMG0001", "object", d, tmp_path / "export")
 
 
+def test_merge_save_reload_export(centers, tmp_path):
+    d = doc(points())
+    d["merges"] = [dict(id=1, points=[[44, 48], [82, 48]])]
+    saved = centers.save("IMG0001", "object", d)
+    reloaded = CenterDataset(centers.root).load("IMG0001", "object")
+    assert reloaded["merges"] == saved["merges"]
+    meta = centers.export_pair("IMG0001", "object", reloaded, tmp_path / "export")
+    assert meta["instance_count"] == 1
+    assert meta["merge_info"][0]["merged_count"] == 1
+
+
+def test_invalid_merge_blocks_export(centers, tmp_path):
+    d = doc()
+    d["merges"] = [dict(id=1, points=[[44, 48], [0, 0]])]
+    with pytest.raises(ValueError, match="invalid merge"):
+        centers.export_pair("IMG0001", "object", d, tmp_path / "export")
+
+
 def test_path_traversal_rejected(centers):
     m = centers.manifest
     m["records"][0]["image"] = "../outside.png"

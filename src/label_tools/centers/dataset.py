@@ -307,6 +307,8 @@ class CenterDataset:
         result = self.compute(case, target, doc)
         if result["invalid_points"]:
             raise ValueError(f"{case}/{target}: invalid points {result['invalid_points']}")
+        if result["invalid_merges"]:
+            raise ValueError(f"{case}/{target}: invalid merge groups {result['invalid_merges']}")
         record = self.records[case]
         cfg = record["targets"][target]
         shape = result["foreground"].shape
@@ -362,6 +364,7 @@ class CenterDataset:
             shape_yx=list(shape),
             instance_count=result["instance_count"],
             point_mapping=result["point_mapping"],
+            merge_info=result["merge_info"],
             human_reviewed=doc["reviewed"],
             boundary_width_px=doc["boundary_width"],
             foreground_includes_boundary=True,

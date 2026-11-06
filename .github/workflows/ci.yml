@@ -37,4 +37,5 @@ jobs:
       - run: node --check src/label_tools/web/app.js
       - run: node --check src/label_tools/web/i18n.js
       - run: node --check src/label_tools/centers/web/app.js
+      - run: node --check src/label_tools/centers/web/merge.js
       - run: python -m label_tools --version

@@ -15,7 +15,7 @@ windowing affects previews only. Pixel size is optional; unknown scale remains i
 
 Within each original region, two or more centers drive a marker-controlled watershed using the
 negative normalized distance transform and an optional image-gradient term. Distinct existing
-instance IDs are never merged. Disconnected pieces of an old ID become separate instances.
+instance IDs are not merged automatically. Disconnected pieces of an old ID become separate instances.
 Regions without centers are retained. Brush edits explicitly modify foreground; the instance
 partition always covers exactly the edited foreground. Erased pixels lose their old instance identity:
 repainting them does not resurrect old partitions. A fully erased, repainted connected region starts
@@ -28,8 +28,28 @@ object. Sparse uint32 source IDs are compacted internally for processing, then m
 new split IDs use unused positive values. IDs are local to each image/target, not global identities.
 
 This method cannot infer a missing object from a point alone, recover biologically correct boundaries
-without sufficient image/mask evidence, or merge separate original IDs. Adjust the foreground and
+without sufficient image/mask evidence. Adjust the foreground and
 review the output instead of treating the preview as validated ground truth.
+
+## Explicit Merge Points
+
+The merge tool collects a temporary selection of points, one inside each intended instance. Confirm
+with the check icon or Enter, or cancel with the cross icon or Escape. A second click near a pending
+point removes it. A confirmed group is stored as `merges: [{id, points: [[x, y], ...]}]`, independently
+of split centers. Missing `merges` in an older document means no merges. Each group needs at least
+two distinct foreground instances when confirmed. A background point rejects the whole group.
+
+Groups are applied after seeded splitting, so an explicit merge overrides the internal boundary of
+the selected pieces. The lowest selected ID is retained, point-to-instance mappings are updated,
+and boundaries are recomputed. Foreground and unselected instances remain unchanged. Disconnected
+fragments may share an ID after an explicit merge; the tool never paints a bridge through background.
+Overlapping merge groups combine transitively because the operator explicitly selected shared IDs.
+
+Undo/redo restores merge edits. The unlink control beside a saved group removes that union, including
+after reloading. Pending selections must be confirmed or cancelled before changing images or exporting.
+Saved groups are coordinate anchors: later brush or split edits re-evaluate the IDs under these
+coordinates. Review the result after such edits; a point erased out of foreground is flagged and
+blocks export until repaired or its group removed. Old exports are snapshots and need re-exporting.
 
 ## Workspace
 
@@ -51,7 +71,7 @@ and `instances` paths. The CLI creates one target; the schema supports multiple 
 raw images. Optional per-target `strict_ignore`, `pseudo_ignore`, `source_ignore` and
 `conflict_ignore` masks must be aligned. All paths stay inside the workspace, including symlinks.
 
-A document contains `revision`, `points: [{id, x, y}]`, `strokes: [{mode, radius, points}]`,
+A document contains `revision`, `points: [{id, x, y}]`, `strokes: [{mode, radius, points}]`, `merges`,
 `boundary_width`, `image_weight`, `reviewed`, and `notes`. Stroke mode is `add` or `erase`; radius
 and boundary width are in pixels. Disk saves use a file lock and optimistic revisions. A stale
 browser cannot overwrite a newer revision. Browser-local draft recovery is secondary to disk JSON.

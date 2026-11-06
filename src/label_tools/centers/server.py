@@ -95,7 +95,12 @@ class CenterHandler(BaseHandler):
                 with ds.jobs_lock:
                     job = dict(ds.jobs[q["id"][0]])
                 return self.respond(job)
-            assets = {"/": "index.html", "/app.js": "app.js", "/style.css": "style.css"}
+            assets = {
+                "/": "index.html",
+                "/app.js": "app.js",
+                "/style.css": "style.css",
+                "/merge.js": "merge.js",
+            }
             if url.path in assets:
                 return self.send_file(WEB / assets[url.path])
             if url.path == "/lucide.min.js":
@@ -141,6 +146,8 @@ class CenterHandler(BaseHandler):
                     instance_count=r["instance_count"],
                     invalid_points=r["invalid_points"],
                     point_mapping=r["point_mapping"],
+                    merge_info=r["merge_info"],
+                    invalid_merges=r["invalid_merges"],
                 )
             elif self.path == "/api/export":
                 result = ds.start_export(p)

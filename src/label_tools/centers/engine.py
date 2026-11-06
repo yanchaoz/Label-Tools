@@ -4,6 +4,7 @@ import numpy as np
 from PIL import Image, ImageDraw
 from scipy import ndimage as ndi
 from skimage.segmentation import find_boundaries, watershed
+from .merges import apply_merges, validate_merges
 
 
 def validate_doc(doc, shape):
@@ -49,6 +50,7 @@ def validate_doc(doc, shape):
     return dict(
         points=clean,
         strokes=brush,
+        merges=validate_merges(doc.get("merges", []), shape),
         boundary_width=width,
         image_weight=weight,
         reviewed=doc.get("reviewed") is True,
@@ -165,6 +167,9 @@ def refine(raw, foreground, original, doc):
     for row in mapping:
         row["instance_id"] = int(table[row["instance_id"]])
         row["source_region"] = int(table[row["source_region"]])
+    out, merge_info, invalid_merges, remap = apply_merges(out, doc["merges"])
+    for row in mapping:
+        row["instance_id"] = remap.get(row["instance_id"], row["instance_id"])
     assert np.array_equal(out > 0, fg), "Instance partition changed the foreground"
     boundary = find_boundaries(out, connectivity=2, mode="inner") & fg
     if doc["boundary_width"] > 1:
@@ -178,6 +183,8 @@ def refine(raw, foreground, original, doc):
         interior=interior,
         classes=classes,
         invalid_points=invalid,
+        merge_info=merge_info,
+        invalid_merges=invalid_merges,
         point_mapping=mapping,
         instance_count=int(np.unique(out[out > 0]).size),
     )
