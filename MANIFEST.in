@@ -1,0 +1,4 @@
+include LICENSE THIRD_PARTY_NOTICES.md CONTRIBUTING.md SECURITY.md
+recursive-include docs *.md *.jpg
+recursive-include tests *.py
+recursive-include src/label_tools/web *.html *.js *.css *.txt

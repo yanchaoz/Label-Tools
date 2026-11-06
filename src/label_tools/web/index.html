@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Label-Tools</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="/vendor/lucide.min.js" defer></script>
+  <script src="/i18n.js" defer></script>
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <header>
+    <div class="brand"><i data-lucide="scan-line"></i><strong>Label-Tools</strong><span class="sub" id="resolution">px</span></div>
+    <div id="save-state" role="status" data-text="loading">Loading</div>
+    <select id="language" aria-label="Language"><option value="en">EN</option><option value="zh">中文</option></select>
+    <button id="export" class="text-button"><i data-lucide="download"></i><span data-text="export">Export reviewed</span></button>
+  </header>
+  <div class="layout">
+    <aside class="cases">
+      <div class="section-head"><strong data-text="images">Images</strong><span id="progress">0 / 0</span></div>
+      <select id="filter" aria-label="Review status"><option value="all" data-text="all">All images</option><option value="draft" data-text="draft">Draft</option><option value="complete" data-text="complete">Complete</option><option value="negative" data-text="negative">Confirmed empty</option></select>
+      <nav id="case-list" aria-label="Images"></nav>
+    </aside>
+    <main>
+      <div class="toolbar">
+        <div class="mode-group" role="group" aria-label="Annotation mode">
+          <button data-mode="draw" data-tool="draw"><i data-lucide="pentagon"></i></button>
+          <button data-mode="edit" data-tool="edit"><i data-lucide="mouse-pointer-2"></i></button>
+          <button data-mode="pan" data-tool="pan"><i data-lucide="hand"></i></button>
+        </div>
+        <div class="divider"></div>
+        <button id="undo" data-tool="undo"><i data-lucide="undo-2"></i></button>
+        <button id="redo" data-tool="redo"><i data-lucide="redo-2"></i></button>
+        <button id="close-path" data-tool="close"><i data-lucide="check"></i></button>
+        <button id="cancel-path" data-tool="cancelPath"><i data-lucide="x"></i></button>
+        <div class="divider"></div>
+        <button id="fit" data-tool="fit"><i data-lucide="maximize"></i></button>
+        <button id="zoom-out" data-tool="zoomOut"><i data-lucide="minus"></i></button>
+        <span id="zoom">100%</span>
+        <button id="zoom-in" data-tool="zoomIn"><i data-lucide="plus"></i></button>
+        <button id="toggle-overlay" data-tool="overlay" aria-pressed="true"><i data-lucide="eye"></i></button>
+        <button id="save" data-tool="save"><i data-lucide="save"></i></button>
+        <button id="download-draft" data-tool="backup"><i data-lucide="file-down"></i></button>
+        <button id="reload-case" data-tool="reload"><i data-lucide="refresh-cw"></i></button>
+      </div>
+      <div class="canvas-wrap" id="canvas-wrap">
+        <canvas id="canvas" tabindex="0" aria-label="Image and instance contours"></canvas>
+        <div class="image-tag"><strong id="case-title">-</strong><span id="field-size"></span></div>
+        <div id="notice" role="alert" hidden></div>
+      </div>
+      <footer>
+        <span id="position">XY -</span><span id="target"></span>
+        <div class="pager"><button id="prev" data-tool="previous"><i data-lucide="chevron-left"></i></button><span id="page">-</span><button id="next" data-tool="next"><i data-lucide="chevron-right"></i></button></div>
+      </footer>
+    </main>
+    <aside class="inspector">
+      <div class="section-head"><strong data-text="instances">Instances</strong><span id="instance-count">0</span></div>
+      <div id="instance-list"></div>
+      <div class="selection">
+        <label class="check-row"><input type="checkbox" id="partial"><span data-text="partial">Truncated / incomplete</span></label>
+        <div class="row"><button id="delete-vertex" data-tool="deleteVertex"><i data-lucide="circle-minus"></i></button><button id="delete-instance" data-tool="deleteInstance"><i data-lucide="trash-2"></i></button></div>
+      </div>
+      <div class="settings">
+        <label><span data-text="opacity">Fill opacity</span><input id="opacity" type="range" min="0" max="50" value="12"></label>
+        <label><span data-text="brightness">Brightness</span><input id="brightness" type="range" min="50" max="150" value="100"></label>
+        <label><span data-text="contrast">Contrast</span><input id="contrast" type="range" min="50" max="200" value="100"></label>
+        <button id="reset-display" class="text-button"><i data-lucide="rotate-ccw"></i><span data-text="resetDisplay">Reset display</span></button>
+      </div>
+      <label class="notes-label" for="notes" data-text="notes">Review notes</label><textarea id="notes" rows="3"></textarea>
+      <div class="actions">
+        <button id="complete" class="primary text-button"><i data-lucide="circle-check"></i><span data-text="markComplete">Complete image</span></button>
+        <button id="negative" class="text-button"><i data-lucide="circle-slash"></i><span data-text="markNegative">Confirm no targets</span></button>
+        <button id="draft" class="text-button"><i data-lucide="pencil"></i><span data-text="reopen">Return to draft</span></button>
+      </div>
+      <div class="storage"><i data-lucide="hard-drive"></i><span data-text="local">Local save / read-only originals</span></div>
+    </aside>
+  </div>
+</body>
+</html>
