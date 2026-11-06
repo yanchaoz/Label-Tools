@@ -17,7 +17,10 @@ Within each original region, two or more centers drive a marker-controlled water
 negative normalized distance transform and an optional image-gradient term. Distinct existing
 instance IDs are never merged. Disconnected pieces of an old ID become separate instances.
 Regions without centers are retained. Brush edits explicitly modify foreground; the instance
-partition always covers exactly the edited foreground. No neural model or SAM download is involved.
+partition always covers exactly the edited foreground. Erased pixels lose their old instance identity:
+repainting them does not resurrect old partitions. A fully erased, repainted connected region starts
+as one instance unless multiple center points split it. Surviving neighboring IDs remain protected.
+No neural model or SAM download is involved.
 
 Points use original image `[x, y]` coordinates; arrays use `[y, x]`. Points outside the foreground or
 duplicated at a marker pixel are flagged and block export until fixed. They are not snapped to an

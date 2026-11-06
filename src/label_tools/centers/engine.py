@@ -77,9 +77,11 @@ def refine(raw, foreground, original, doc):
         raise ValueError("Expected nonnegative uint32-compatible instance IDs")
     doc = validate_doc(doc, foreground.shape)
     fg = brush_mask(foreground, doc["strokes"])
-    source_ids = np.unique(original[(original > 0) & fg])
+    # Erasing invalidates old label provenance even if a later stroke repaints it.
+    retained = brush_mask(original > 0, [s for s in doc["strokes"] if s["mode"] == "erase"])
+    known = (original > 0) & fg & retained
+    source_ids = np.unique(original[known])
     base = np.zeros(original.shape, dtype="uint32")
-    known = (original > 0) & fg
     base[known] = np.searchsorted(source_ids, original[known]).astype("uint32") + 1
     # Fill newly painted pixels within each foreground component, without merging old IDs.
     components, n = ndi.label(fg, structure=np.ones((3, 3)))

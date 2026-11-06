@@ -2,7 +2,7 @@
 
 ## Local Checks (2026-11-06)
 
-- 87 Python unit/HTTP tests passed on Windows with Python 3.10, including 17 center-mode cases.
+- 88 Python unit/HTTP tests passed on Windows with Python 3.10, including 18 center-mode cases.
 - Tests cover XY/YX raster alignment, uint16 output, multiple IDs, partial ignore masks, invalid
   coordinates, self-intersections, raster overlap, review state, stale revisions, cross-process locks,
   interrupted writes, original-pixel preservation, raw checksum failures and HTTP request checks.
@@ -30,6 +30,8 @@ Center-mode checks used a separate synthetic workspace and headless Edge:
 - Reloaded and recovered both center points from disk; reviewed and exported a complete pair.
 - Inspected 1440 x 900 desktop and 390 x 844 narrow layouts with no horizontal overflow.
 - No browser page errors occurred. The public center screenshot contains synthetic shapes only.
+- An erase/repaint regression verifies that fully erased source IDs do not reappear after painting,
+  neighboring untouched IDs remain unchanged, explicit centers still split, and undo restores IDs.
 
 ## CI and Limits
 
