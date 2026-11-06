@@ -4,7 +4,8 @@
 
 [中文说明](docs/README.zh-CN.md) · [Data format](docs/data-format.md) · [Architecture](docs/architecture.md) · [Contributing](CONTRIBUTING.md)
 
-Label-Tools is a small Python + browser framework for drawing and reviewing **2D instance polygons**.
+Label-Tools is a small Python + browser framework for drawing **2D instance polygons** and refining
+existing masks with **instance center points**.
 It runs on your computer, saves to your filesystem, and separates unfinished work from reviewed
 positive and negative training examples. No cloud account, Node build step, or model download is required.
 
@@ -20,6 +21,8 @@ positive and negative training examples. No cloud account, Node build step, or m
 - Explicit **draft / complete / confirmed empty** review states.
 - Lossless raw TIFF + uint16 instance TIFF + partial-target ignore mask exports.
 - PNG/JPEG and single-image TIFF import, raw/preview checksums, and synthetic demo data.
+- Optional center-point workspace: foreground add/erase, seeded instance splitting, live previews,
+  revisioned annotations, and foreground + boundary training targets.
 
 ## Quick Start
 
@@ -86,15 +89,46 @@ that two images are independent.
 
 ## Scope
 
-This release supports one object category per dataset, simple non-overlapping polygons, and 2D crops.
-It is not a WSI tile server, 3D annotator, brush editor, collaborative web service, or clinical device.
-Polygon holes and touching/overlapping instance raster pixels are not supported. Use the original
+Polygon workspaces support one object category, simple non-overlapping polygons, and 2D crops.
+The optional center workspace refines existing grayscale-image masks, including touching instances.
+It is not a WSI tile server, 3D annotator, collaborative web service, or clinical device.
+Polygon mode does not support holes or touching/overlapping instance raster pixels. Use the original
 desktop dataset separately; no research images or real annotations are distributed here.
+
+## Center-Point Refinement
+
+```bash
+python -m pip install ".[centers]"
+label-tools centers-demo --output ../center-demo
+label-tools centers-serve ../center-demo --open
+```
+
+The center workspace defaults to `http://127.0.0.1:8772`. To import your own grayscale images,
+binary foreground masks, and optional integer instance masks with matching filename stems:
+
+```bash
+label-tools centers-init /path/to/images --masks /path/to/foreground --instances /path/to/instances --output /path/to/center-workspace --resolution-nm 20 --target "Objects"
+label-tools centers-serve /path/to/center-workspace --open
+```
+
+Omit `--instances` to initialize from foreground connected components. Omit `--resolution-nm` when
+unknown. Add one center per object **inside a merged region** to split it; existing independent
+instance IDs are retained. Points outside foreground are flagged, not silently moved. Add or erase
+foreground explicitly when the coarse mask is wrong. Previews recompute locally after edits;
+training TIFFs are generated only when you export.
+
+Exports contain raw pixels, uint32 instances, foreground, boundary, interior, and ignore masks.
+**Centers do not make an unreviewed foreground mask ground truth.** Review the full mask and all
+instances before enabling the reviewed flag. The default strict training mask ignores an unreviewed
+image entirely. Derived boundaries are algorithmic targets, not independently traced membranes.
+See [center workflow and format](docs/center-points.md) for export semantics and limitations.
+
+![Center-point splitting on synthetic data](docs/assets/center-refinement-demo.png)
 
 ## Development
 
 ```bash
-python -m pip install -e ".[dev]"
+python -m pip install -e ".[dev,centers]"
 python -m pytest
 python -m ruff check src tests
 python -m build

@@ -50,8 +50,34 @@ label-tools serve /path/to/workspace --open
 
 ## 范围与数据安全
 
-目前是二维、单目标类别、多实例多边形工具，不包含三维标注、画笔、模型训练和多人在线协作。
-不支持多边形孔洞或实例像素重叠。仅监听本机，不要直接暴露到公网。
+多边形模式用于二维、单目标类别、多实例描边，不支持多边形孔洞或实例像素重叠。
+可选中心点模式支持已有前景的画笔修正和粘连实例拆分。不包含三维标注、模型训练和多人在线协作。
+仅监听本机，不要直接暴露到公网。
 
 公开仓库只包含代码、文档和合成示例，不包含真实电镜图、人工标注、模型权重、私人路径或服务器凭据。
 代码采用 MIT 许可证；图标许可见仓库第三方说明。
+
+## 中心点实例修正
+
+```bash
+python -m pip install ".[centers]"
+label-tools centers-demo --output ../center-demo
+label-tools centers-serve ../center-demo --open
+```
+
+默认端口为 `8772`。导入灰度原图、二值前景和可选实例 mask：
+
+```bash
+label-tools centers-init /path/to/images --masks /path/to/foreground --instances /path/to/instances --output /path/to/workspace --resolution-nm 20 --target "Objects"
+```
+
+- 原图与 mask 按文件名主干配对，形状必须一致；前景只能使用 0/1 或 0/255。
+- 省略 `--instances` 时按前景连通域初始化；不知道像素尺度时省略 `--resolution-nm`。
+- 在同一个粘连区域中给不同目标各标一个中心点，程序进行局部分水岭拆分，保留已有独立实例。
+- 点位在前景之外会提示，不会偷偷吸附。漏分割区域需要先用画笔补前景。
+- 编辑后自动保存并更新预览；点击导出后才会生成训练 TIFF，不会改写输入数据。
+- 输出包括无损原图、uint32 实例、前景、边缘、内部、三类标签及 ignore mask。
+- **标了中心点不等于完整人工真值。** 未复核的默认严格训练标签全部忽略；完整检查前景和实例后才能勾选已复核。
+- 接触图像边界的实例及明确的硬忽略区域仍然保留 ignore。计算生成的边缘不能等同于人工描绘的生物膜。
+
+中心点界面目前为英文。完整格式、算法边界和导出语义见 [center-points.md](center-points.md)。

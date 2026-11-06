@@ -32,6 +32,18 @@ The API is intentionally small:
 Write requests use JSON and `X-Annotation-Token`. The token is process-local, not a public authentication
 system. A 409 signals a revision conflict; the client preserves its draft and requires explicit recovery.
 
+## Center Workspace
+
+The optional `centers/` package uses a separate manifest and document schema. `centers/dataset.py`
+handles paired image/mask import, revisioned JSON, immutable export snapshots and TIFF provenance.
+`centers/engine.py` owns foreground brush rasterization, region-constrained seeded watershed,
+uint32 ID preservation and derived boundaries. `centers/server.py` reuses the polygon server's
+response/security helpers with its own loopback listener and static frontend.
+
+Center routes are `GET /api/dataset`, `/api/doc`, `/api/raw`, `/api/job` and `POST /api/save`,
+`/api/preview`, `/api/export`. Preview is computed on demand; annotation JSON autosaves independently
+and training TIFFs are written only by explicit export. See [the format contract](center-points.md).
+
 ## Extending
 
 Add a source adapter by producing a validated manifest plus raw TIFF and preview PNG files. Keep image

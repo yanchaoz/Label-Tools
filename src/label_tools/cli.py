@@ -36,8 +36,61 @@ def main(argv=None):
             name, help="Verify images" if name == "verify" else "Export reviewed image-label pairs"
         )
         command.add_argument("dataset", type=Path)
+    centers_init = sub.add_parser(
+        "centers-init", help="Import grayscale images and matching foreground masks"
+    )
+    centers_init.add_argument("images", type=Path)
+    centers_init.add_argument("--masks", type=Path, required=True)
+    centers_init.add_argument("--instances", type=Path)
+    centers_init.add_argument("--output", type=Path, required=True)
+    centers_init.add_argument("--resolution-nm", type=float)
+    centers_init.add_argument("--target", default="Objects")
+    centers_demo = sub.add_parser(
+        "centers-demo", help="Create synthetic center-point refinement examples"
+    )
+    centers_demo.add_argument("--output", type=Path, required=True)
+    centers_serve = sub.add_parser(
+        "centers-serve", help="Open the center-point refinement UI locally"
+    )
+    centers_serve.add_argument("dataset", type=Path)
+    centers_serve.add_argument("--port", type=int, default=8772)
+    centers_serve.add_argument("--open", action="store_true")
     args = parser.parse_args(argv)
     try:
+        if args.command.startswith("centers-"):
+            try:
+                from .centers.dataset import CenterDataset, create_center_demo, import_centers
+                from .centers.server import CenterServer
+            except ImportError as exc:
+                raise ValueError(
+                    'Install center refinement dependencies: pip install "label-tools[centers]" (or ".[centers]" from this checkout)'
+                ) from exc
+            if args.command == "centers-init":
+                value = import_centers(
+                    args.images,
+                    args.masks,
+                    args.output,
+                    instances=args.instances,
+                    resolution_nm=args.resolution_nm,
+                    target=args.target,
+                )
+                print(
+                    f"Imported {len(value['records'])} image-mask pairs into {args.output.resolve()}"
+                )
+            elif args.command == "centers-demo":
+                create_center_demo(args.output)
+                print(f"Synthetic center workspace: {args.output.resolve()}")
+            else:
+                if not 0 <= args.port <= 65535:
+                    raise ValueError("Port must be between 0 and 65535")
+                logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
+                with CenterServer(CenterDataset(args.dataset), args.port) as server:
+                    print(f"Label-Tools center refinement: {server.url}", flush=True)
+                    print("Local computer only. Press Ctrl+C to stop.", flush=True)
+                    if args.open:
+                        webbrowser.open(server.url)
+                    server.serve_forever()
+            return 0
         if args.command == "init":
             result = import_images(
                 args.images,

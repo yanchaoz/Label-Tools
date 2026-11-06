@@ -5,7 +5,7 @@ Do not change image values, coordinate conventions, review states, or ignore-mas
 tests and an explicit format/version migration plan.
 
 ```bash
-python -m pip install -e ".[dev]"
+python -m pip install -e ".[dev,centers]"
 python -m pytest
 python -m ruff check src tests
 python -m build
@@ -18,6 +18,10 @@ process. The suite uses no third-party pytest plugins.
 Frontend changes should be checked in a real browser: draw and edit a polygon, undo/redo, reload,
 confirm an empty image, export reviewed pairs, and test an invalid contour. Verify desktop and narrow
 layouts. Use synthetic images only for public screenshots and test fixtures.
+
+For center mode, additionally check touching-region splitting, preserved neighboring instance IDs,
+invalid center warnings, foreground brush edits, disk reload, and strict versus pseudo-label exports.
+Do not mark predictions as reviewed merely because center points were added.
 
 Include the exact commands and results in your PR. Do not claim scientific accuracy from software
 tests or synthetic examples. Please keep the English and Chinese interface strings synchronized.
