@@ -1,5 +1,8 @@
 # Dataset and Export Format
 
+This page describes polygon workspaces. Center-point workspaces use a separate schema and export
+contract documented in [Center-Point Instance Refinement](center-points.md).
+
 ## Workspace
 
 ```text

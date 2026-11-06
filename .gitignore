@@ -28,6 +28,13 @@ annotation_history/
 labels/
 ignore_masks/
 training_exports/
+center_annotations/
+center_history/
+center_exports/
+center-demo/
+foreground/
+instances/
+raw/
 server_status.json
 config.local.json
 *.tif
